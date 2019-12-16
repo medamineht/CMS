@@ -1,0 +1,10 @@
+---
+- name: "[TYPO3] - typo3 -mysql"
+  hosts: typo3-mysql
+  become: yes
+  roles:
+    - mysql
+    - typo3
+
+   
+

@@ -1,0 +1,17 @@
+---
+
+typo3_packages:
+    - apache2
+    - php7.2-common
+    - php7.2-mysql
+    - php7.2
+    - php7.2-gd 
+    - php7.2-ssh2
+    - php7.2-xml
+    - php7.2-zip
+    - php7.2-intl
+    - libapache2-mod-php7.2
+    - wget
+
+
+

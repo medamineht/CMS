@@ -1,0 +1,70 @@
+---
+- name: "[TYPO3] - lock"
+  file:
+    path: "/var/lib/apt/lists/lock"
+    path: "/var/cache/apt/archives/lock"
+    path: "/var/lib/dpkg/lock"
+    state: absent
+  become: yes
+
+- name: "[TYPO3] - update cache"
+  apt:
+    update_cache: yes
+
+- name: "[TYPO3] - install apache/php" 
+  apt: 
+    name: "{{ item }}"
+    state: present
+  with_items: "{{ typo3_packages }}"
+
+- lineinfile: dest=/etc/php/7.2/apache2/php.ini regexp='max_execution_time[\s]?=' line='max_execution_time = 240'
+- lineinfile: dest=/etc/php/7.2/apache2/php.ini regexp='max_input_vars[\s]?=' line='max_input_vars = 1500'
+
+- name: "[TYPO3] - start apache"
+  service:
+    name: "{{ item }}"
+    state: started
+    enabled: yes
+  with_items:
+    - apache2
+
+- name: Download TYPO3  
+  get_url: 
+    url=https://get.typo3.org/9.5.2/tar.gz 
+    dest=/tmp/typo3_src-9.5.2.tar.gz
+    validate_certs=no
+
+- name: Creates directory
+  file:
+    path: /var/www/typo3
+    state: directory
+    owner: www-data
+    group: www-data
+    mode: 0775
+
+- name: Extract TYPO3  
+  unarchive: src=/tmp/typo3_src-9.5.2.tar.gz dest=/var/www copy=no
+  sudo: yes
+  
+- name: Synchronize Folder TYPO3
+  shell: cp -rf /var/www/typo3_src-9.5.2/* /var/www/typo3/
+
+- name: "create first install"
+  file:
+    path: /var/www/typo3/FIRST_INSTALL
+    state: touch
+
+- name: Update default Apache site
+  sudo: yes
+  lineinfile: 
+    dest=/etc/apache2/sites-enabled/000-default.conf 
+    regexp="(.)+DocumentRoot /var/www/html"
+    line="DocumentRoot /var/www/typo3"
+  notify:
+    - restart apache
+
+
+
+
+
+

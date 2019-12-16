@@ -1,0 +1,27 @@
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
+
+ENV['VAGRANT_NO_PARALLEL'] = 'yes'
+
+Vagrant.configure(2) do |config|
+
+  NodeCount = 1
+
+  (1..NodeCount).each do |i|
+    config.vm.define "prod0#{i}" do |node|
+      node.vm.box = "debian/stretch64"
+      node.vm.hostname = "prod0#{i}.example.com"
+      node.vm.network "public_network", ip: "192.168.1.11#{i}", bridge: "ens33"
+      node.vm.provider "virtualbox" do |v|
+        v.name = "prod0#{i}"
+        v.memory = 550
+        v.cpus = 1
+      end
+      config.vm.provision "shell", inline: <<-SHELL
+        sed -i 's/ChallengeResponseAuthentication no/ChallengeResponseAuthentication yes/g' /etc/ssh/sshd_config   
+	service ssh restart
+      SHELL
+    end
+  end
+
+end

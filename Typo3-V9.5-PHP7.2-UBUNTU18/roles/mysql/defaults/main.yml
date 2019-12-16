@@ -1,0 +1,9 @@
+---
+
+mysql_packages:
+  - mysql-server
+  - python-mysqldb
+mysql_db: "typo3"
+mysql_user: "user2"
+mysql_password: "password"
+
